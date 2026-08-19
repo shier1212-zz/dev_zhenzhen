@@ -4,6 +4,45 @@ import PageHero from "../components/PageHero.jsx";
 import Img from "../components/Img.jsx";
 import { Loading, ErrorBox } from "../components/States.jsx";
 
+const StoryVisual = ({ className }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M12 2C7 7 4.5 10.5 4.5 14.5a7.5 7.5 0 0 0 15 0C19.5 10.5 17 7 12 2Z"
+      fill="currentColor"
+      opacity="0.95"
+    />
+    <path
+      d="M12 10c-2 2.2-3 3.9-3 5.6a3 3 0 0 0 6 0c0-1.7-1-3.4-3-5.6Z"
+      fill="#0B7A6E"
+    />
+  </svg>
+);
+
+const MissionIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10" />
+    <circle cx="12" cy="12" r="6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+);
+
+const VisionIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+  </svg>
+);
+
+const ValuesIcon = () => (
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z" />
+  </svg>
+);
+
 export default function About() {
   const [data, setData] = useState(null);
   const [error, setError] = useState("");
@@ -19,75 +58,96 @@ export default function About() {
   const milestones = data.milestones || [];
   const honors = data.honors || [];
 
+  const visionCards = [
+    { title: "我们的使命", value: vision.mission, icon: <MissionIcon /> },
+    { title: "我们的愿景", value: vision.vision, icon: <VisionIcon /> },
+    { title: "我们的价值观", value: vision.values, icon: <ValuesIcon /> },
+  ].filter((v) => v.value);
+
   return (
     <>
-      <PageHero title="关于我们" subtitle="以科技重塑居家体验，让家更懂你" />
+      <PageHero title="关于我们" subtitle="以自然之名，造智慧之家" />
 
       {/* 品牌故事 */}
       {data.brand_story && (
-        <section className="container-content py-14 md:py-20">
-          <div className="grid items-center gap-10 lg:grid-cols-2">
-            <div>
-              <span className="eyebrow">品牌故事</span>
-              <div className="prose-detail mt-4 text-neutral-600" dangerouslySetInnerHTML={{ __html: data.brand_story }} />
-            </div>
-            <div className="rounded-md bg-gradient-to-br from-primary-light to-neutral-100 p-8 md:p-12">
-              <p className="text-2xl font-bold leading-snug text-primary-deep md:text-3xl">
-                {data.brand_story ? "让家更懂你" : "以科技连接美好生活"}
-              </p>
+        <section className="py-14 md:py-20">
+          <div className="container-content">
+            <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_1fr]">
+              <div>
+                <span className="eyebrow">BRAND STORY · 品牌故事</span>
+                <div
+                  className="prose-detail mt-5 text-neutral-600"
+                  dangerouslySetInnerHTML={{ __html: data.brand_story }}
+                />
+              </div>
+              <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#0B7A6E] to-primary-deep shadow-card-hover">
+                <StoryVisual className="h-32 w-32 text-white/90 md:h-40 md:w-40" />
+              </div>
             </div>
           </div>
         </section>
       )}
 
-      {/* 愿景三卡 */}
-      {(vision.mission || vision.vision || vision.values) && (
+      {/* 企业愿景 */}
+      {visionCards.length > 0 && (
         <section className="bg-neutral-50 py-14 md:py-20">
           <div className="container-content">
-            <span className="eyebrow">企业愿景</span>
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-              {[
-                { title: "使命", value: vision.mission, icon: "M13 2L4 14h6l-1 8 9-12h-6l1-8z" },
-                { title: "愿景", value: vision.vision, icon: "M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z" },
-                { title: "价值观", value: vision.values, icon: "M12 21C7 16.5 3 13.2 3 9.2 3 6.4 5.2 4 8 4c1.6 0 3.1.7 4 2 .9-1.3 2.4-2 4-2 2.8 0 5 2.4 5 5.2 0 4-4 7.3-9 11.8z" },
-              ]
-                .filter((v) => v.value)
-                .map((v) => (
-                  <div key={v.title} className="card p-6">
-                    <span className="flex h-11 w-11 items-center justify-center rounded-md bg-primary-light text-primary-deep">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                        <path d={v.icon} />
-                      </svg>
-                    </span>
-                    <h3 className="mt-4 font-semibold text-neutral-900">{v.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-neutral-600">{v.value}</p>
-                  </div>
-                ))}
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <span className="eyebrow">VISION · 企业愿景</span>
+              <h2 className="section-title mt-4">使命 · 愿景 · 价值观</h2>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3">
+              {visionCards.map((v) => (
+                <div
+                  key={v.title}
+                  className="card card-hover rounded-lg border border-neutral-200 p-7 text-center"
+                >
+                  <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary-light text-primary-deep">
+                    {v.icon}
+                  </span>
+                  <h3 className="mt-5 text-lg font-bold text-neutral-900">{v.title}</h3>
+                  <p className="mt-2 text-sm leading-7 text-neutral-600">{v.value}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* 发展历程（横版时间轴） */}
+      {/* 发展历程 */}
       {milestones.length > 0 && (
-        <section className="container-content py-14 md:py-20">
-          <span className="eyebrow">发展历程</span>
-          <div className="mt-10 overflow-x-auto pb-4">
-            <div className="relative flex min-w-max gap-8">
-              {/* 轴线 */}
-              <div className="absolute left-0 right-0 top-5 h-0.5 bg-neutral-200" />
-              {milestones
-                .slice()
-                .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
-                .map((m, i) => (
-                  <div key={i} className="relative w-44 shrink-0">
-                    <span className="relative z-[1] flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-card">
-                      {String(m.year).slice(-2)}
-                    </span>
-                    <p className="mt-3 font-semibold text-neutral-900">{m.year}</p>
-                    <p className="mt-1 text-sm leading-6 text-neutral-500">{m.event}</p>
-                  </div>
-                ))}
+        <section className="py-14 md:py-20">
+          <div className="container-content">
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <span className="eyebrow">MILESTONES · 发展历程</span>
+              <h2 className="section-title mt-4">十年深耕，枝叶渐繁</h2>
+            </div>
+            <div className="relative mx-auto max-w-6xl overflow-x-auto pb-6">
+              <div className="relative flex min-w-max justify-between gap-6 pt-10">
+                {/* 轴线 */}
+                <div className="absolute left-0 right-0 top-5 h-0.5 bg-gradient-to-r from-primary via-primary-light to-primary" />
+                {milestones
+                  .slice()
+                  .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+                  .map((m, i) => (
+                    <div
+                      key={i}
+                      className="relative min-w-[150px] max-w-[220px] flex-1 px-2 pt-8 text-center"
+                    >
+                      {/* 圆点 */}
+                      <span className="absolute left-1/2 top-[-27px] z-[2] h-3.5 w-3.5 -translate-x-1/2 rounded-full border-[3px] border-primary bg-white shadow-[0_0_0_4px_#E6F4F2]" />
+                      {/* 垂线 */}
+                      <span className="absolute left-1/2 top-[-27px] z-[1] h-7 w-px -translate-x-1/2 bg-primary-light" />
+                      <p className="text-xl font-bold text-primary-deep">{m.year}</p>
+                      {m.title && (
+                        <h4 className="mt-1 text-base font-semibold text-neutral-900">{m.title}</h4>
+                      )}
+                      <p className="mt-1 text-sm leading-6 text-neutral-500">
+                        {m.desc || m.event}
+                      </p>
+                    </div>
+                  ))}
+              </div>
             </div>
           </div>
         </section>
@@ -97,14 +157,42 @@ export default function About() {
       {honors.length > 0 && (
         <section className="bg-neutral-50 py-14 md:py-20">
           <div className="container-content">
-            <span className="eyebrow">资质荣誉</span>
-            <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4">
-              {honors.map((h, i) => (
-                <div key={i} className="card overflow-hidden text-center">
-                  <Img src={h.image} alt={h.desc || "荣誉资质"} className="aspect-square w-full" />
-                  {h.desc && <p className="p-3 text-sm text-neutral-600">{h.desc}</p>}
-                </div>
-              ))}
+            <div className="mx-auto mb-12 max-w-2xl text-center">
+              <span className="eyebrow">HONORS · 资质荣誉</span>
+              <h2 className="section-title mt-4">实力见证，值得信赖</h2>
+            </div>
+            <div className="grid grid-cols-2 gap-5 md:grid-cols-4">
+              {honors
+                .slice()
+                .sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+                .map((h, i) => (
+                  <div
+                    key={i}
+                    className="card card-hover overflow-hidden rounded-md border border-neutral-200 text-center"
+                  >
+                    {h.image ? (
+                      <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#F2FAF8] to-primary-light p-5">
+                        <Img
+                          src={h.image}
+                          alt={h.title || h.desc || "荣誉资质"}
+                          className="h-full w-full object-contain"
+                          ratio="aspect-square"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex aspect-square items-center justify-center bg-gradient-to-br from-[#F2FAF8] to-primary-light p-5">
+                        <span className="text-sm font-bold leading-tight text-primary-deep md:text-base">
+                          {h.title}
+                        </span>
+                      </div>
+                    )}
+                    {(h.title || h.desc) && (
+                      <p className="p-4 text-sm text-neutral-600">
+                        {h.desc || h.title}
+                      </p>
+                    )}
+                  </div>
+                ))}
             </div>
           </div>
         </section>
