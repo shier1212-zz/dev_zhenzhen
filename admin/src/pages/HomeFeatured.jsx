@@ -127,7 +127,8 @@ export default function HomeFeatured() {
   const addSelected = () => {
     const next = [...targetKeys];
     let added = 0;
-    modalSelected.forEach((id) => {
+    modalSelected.forEach((rawId) => {
+      const id = String(rawId);
       if (!next.includes(id)) {
         if (next.length >= 8) return;
         next.push(id);
@@ -318,8 +319,9 @@ export default function HomeFeatured() {
             size="small"
             pagination={{ pageSize: 10, simple: true }}
             rowSelection={{
+              type: "checkbox",
               selectedRowKeys: modalSelected,
-              onChange: (keys) => setModalSelected(keys.map(String)),
+              onChange: (keys) => setModalSelected(keys),
               getCheckboxProps: () => ({
                 disabled: targetKeys.length >= 8,
               }),
