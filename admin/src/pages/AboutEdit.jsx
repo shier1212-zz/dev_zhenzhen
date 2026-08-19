@@ -3,6 +3,7 @@ import { Card, Form, Input, Button, Typography, Space, message, Divider } from "
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { aboutApi } from "../api";
 import RichTextEditor from "../components/RichTextEditor";
+import ImageUpload from "../components/ImageUpload";
 
 export default function AboutEdit() {
   const [form] = Form.useForm();
@@ -17,6 +18,7 @@ export default function AboutEdit() {
         const vision = d.vision || {};
         form.setFieldsValue({
           brand_story: d.brand_story || "",
+          brand_image: d.brand_image || "",
           mission: vision.mission || "",
           vision: vision.vision || "",
           values: vision.values || "",
@@ -36,6 +38,7 @@ export default function AboutEdit() {
     try {
       await aboutApi.update({
         brand_story: v.brand_story,
+        brand_image: v.brand_image || "",
         vision: { mission: v.mission, vision: v.vision, values: v.values },
         milestones: v.milestones || [],
         honors: v.honors || [],
@@ -53,6 +56,9 @@ export default function AboutEdit() {
         <Form form={form} layout="vertical">
           <Form.Item name="brand_story" label="品牌故事">
             <RichTextEditor height={280} />
+          </Form.Item>
+          <Form.Item name="brand_image" label="品牌故事配图">
+            <ImageUpload width={320} height={200} />
           </Form.Item>
           <Divider orientation="left">愿景三卡</Divider>
           <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
@@ -97,18 +103,35 @@ export default function AboutEdit() {
             {(fields, { add, remove }) => (
               <>
                 {fields.map(({ key, name, ...rest }) => (
-                  <Space key={key} align="baseline" style={{ display: "flex", marginBottom: 8 }}>
-                    <Form.Item {...rest} name={[name, "title"]} label="荣誉名称" rules={[{ required: true }]} style={{ marginBottom: 0 }}>
-                      <Input placeholder="荣誉/资质名称" style={{ width: 320 }} />
+                  <div
+                    key={key}
+                    style={{
+                      display: "flex",
+                      gap: 16,
+                      alignItems: "flex-start",
+                      marginBottom: 16,
+                      padding: 12,
+                      border: "1px dashed #d9d9d9",
+                      borderRadius: 8,
+                      background: "#fafafa",
+                    }}
+                  >
+                    <Form.Item {...rest} name={[name, "image"]} label="荣誉图片" style={{ marginBottom: 0 }}>
+                      <ImageUpload width={120} height={90} />
                     </Form.Item>
-                    <Form.Item {...rest} name={[name, "desc"]} label="说明" style={{ marginBottom: 0 }}>
-                      <Input placeholder="可选说明" style={{ width: 240 }} />
-                    </Form.Item>
-                    <MinusCircleOutlined onClick={() => remove(name)} />
-                  </Space>
+                    <div style={{ flex: 1 }}>
+                      <Form.Item {...rest} name={[name, "title"]} label="荣誉名称" rules={[{ required: true }]} style={{ marginBottom: 8 }}>
+                        <Input placeholder="荣誉/资质名称" style={{ width: 320 }} />
+                      </Form.Item>
+                      <Form.Item {...rest} name={[name, "desc"]} label="说明" style={{ marginBottom: 0 }}>
+                        <Input placeholder="可选说明" style={{ width: 320 }} />
+                      </Form.Item>
+                    </div>
+                    <MinusCircleOutlined onClick={() => remove(name)} style={{ marginTop: 8 }} />
+                  </div>
                 ))}
                 <Form.Item>
-                  <Button type="dashed" onClick={() => add({ title: "", desc: "" })} block icon={<PlusOutlined />}>
+                  <Button type="dashed" onClick={() => add({ image: "", title: "", desc: "" })} block icon={<PlusOutlined />}>
                     添加荣誉
                   </Button>
                 </Form.Item>

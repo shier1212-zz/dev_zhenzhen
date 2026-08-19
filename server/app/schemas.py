@@ -180,6 +180,7 @@ class FeaturedItem(BaseModel):
 # ---------- 关于我们 About ----------
 class AboutUpdate(BaseModel):
     brand_story: str | None = None
+    brand_image: str | None = Field(default=None, max_length=255)
     vision: dict = Field(default_factory=dict)
     milestones: list[Any] = Field(default_factory=list)
     honors: list[Any] = Field(default_factory=list)
@@ -187,6 +188,7 @@ class AboutUpdate(BaseModel):
 
 class AboutOut(StdOut):
     brand_story: str | None = None
+    brand_image: str | None = None
     vision: dict = Field(default_factory=dict)
     milestones: list[Any] = Field(default_factory=list)
     honors: list[Any] = Field(default_factory=list)

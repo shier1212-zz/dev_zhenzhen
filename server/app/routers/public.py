@@ -269,9 +269,13 @@ def public_about(db: DbDep):
     """关于我们（单行配置）。"""
     a = db.query(AboutContent).filter(AboutContent.id == 1).first()
     if a is None:
-        return ok(data={"brand_story": "", "vision": {}, "milestones": [], "honors": []})
+        return ok(data={
+            "brand_story": "", "brand_image": "", "vision": {},
+            "milestones": [], "honors": [],
+        })
     return ok(data={
         "brand_story": a.brand_story,
+        "brand_image": a.brand_image or "",
         "vision": _j(a.vision, {}),
         "milestones": _j(a.milestones),
         "honors": _j(a.honors),

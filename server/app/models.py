@@ -265,6 +265,7 @@ class AboutContent(StdFieldsMixin, Base):
     )
 
     brand_story: Mapped[str | None] = mapped_column(Text, comment="品牌故事（富文本）")
+    brand_image: Mapped[str | None] = mapped_column(String(255), comment="品牌故事配图 URL")
     vision: Mapped[str] = mapped_column(Text, nullable=False, default="{}", server_default="{}",
                                         comment="愿景 JSON：{mission,vision,values}")
     milestones: Mapped[str] = mapped_column(Text, nullable=False, default="[]", server_default="[]",

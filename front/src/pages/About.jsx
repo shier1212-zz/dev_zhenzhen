@@ -81,7 +81,15 @@ export default function About() {
                 />
               </div>
               <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-[#0B7A6E] to-primary-deep shadow-card-hover">
-                <StoryVisual className="h-32 w-32 text-white/90 md:h-40 md:w-40" />
+                {data.brand_image ? (
+                  <Img
+                    src={data.brand_image}
+                    alt="品牌故事配图"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <StoryVisual className="h-32 w-32 text-white/90 md:h-40 md:w-40" />
+                )}
               </div>
             </div>
           </div>
@@ -186,11 +194,14 @@ export default function About() {
                         </span>
                       </div>
                     )}
-                    {(h.title || h.desc) && (
-                      <p className="p-4 text-sm text-neutral-600">
-                        {h.desc || h.title}
-                      </p>
-                    )}
+                    <div className="bg-white p-4 text-center">
+                      {h.title && (
+                        <h4 className="text-base font-semibold text-neutral-900">{h.title}</h4>
+                      )}
+                      {h.desc && (
+                        <p className="mt-1 text-sm text-neutral-500">{h.desc}</p>
+                      )}
+                    </div>
                   </div>
                 ))}
             </div>

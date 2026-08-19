@@ -20,7 +20,8 @@ def get_about(
     a = db.query(AboutContent).filter(AboutContent.id == 1).first()
     if a is None:
         return ok(data={
-            "brand_story": "", "vision": {}, "milestones": [], "honors": [],
+            "brand_story": "", "brand_image": "", "vision": {},
+            "milestones": [], "honors": [],
         })
     try:
         vision = json.loads(a.vision) if a.vision else {}
@@ -29,8 +30,8 @@ def get_about(
     except (TypeError, json.JSONDecodeError):
         vision, milestones, honors = {}, [], []
     return ok(data={
-        "brand_story": a.brand_story, "vision": vision,
-        "milestones": milestones, "honors": honors,
+        "brand_story": a.brand_story, "brand_image": a.brand_image or "",
+        "vision": vision, "milestones": milestones, "honors": honors,
     })
 
 
@@ -45,6 +46,7 @@ def update_about(
         a = AboutContent(id=1, is_activate=1)
         db.add(a)
     a.brand_story = body.brand_story
+    a.brand_image = body.brand_image
     a.vision = json.dumps(body.vision, ensure_ascii=False)
     a.milestones = json.dumps(body.milestones, ensure_ascii=False)
     a.honors = json.dumps(body.honors, ensure_ascii=False)

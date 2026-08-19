@@ -92,10 +92,10 @@ ABOUT_MILESTONES = [
 ]
 
 ABOUT_HONORS = [
-    {"title": "国家高新技术企业", "desc": "2021"},
-    {"title": "智能家居十大品牌", "desc": "2023"},
-    {"title": "ISO9001 质量体系认证", "desc": "2022"},
-    {"title": "AAA 级信用企业", "desc": "2022"},
+    {"image": _img("honor-1.svg", 400, 300, "#E6F4F3", "国家高新技术企业"), "title": "国家高新技术企业", "desc": "2021 年获评"},
+    {"image": _img("honor-2.svg", 400, 300, "#E6F4F3", "智能家居十大品牌"), "title": "智能家居十大品牌", "desc": "2023 年行业评选"},
+    {"image": _img("honor-3.svg", 400, 300, "#E6F4F3", "ISO9001"), "title": "ISO9001 质量体系认证", "desc": "2022 年认证通过"},
+    {"image": _img("honor-4.svg", 400, 300, "#E6F4F3", "AAA 级信用"), "title": "AAA 级信用企业", "desc": "2022 年信用评价"},
 ]
 
 ADVANTAGES = [
@@ -208,6 +208,7 @@ def seed_demo() -> None:
                 "我们始终坚持自主研发，将稳定可靠的硬件与智能场景算法深度融合，"
                 "为家庭打造「懂你」的智能生活空间。</p>"
             )
+            about.brand_image = _img("about-brand.svg", 800, 600, "#0E9384", "品牌故事配图")
             about.vision = json.dumps({
                 "mission": "以科技温暖每个家庭",
                 "vision": "成为最懂中国家庭的全屋智能品牌",
