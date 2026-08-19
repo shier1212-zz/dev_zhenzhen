@@ -3,10 +3,10 @@ import uuid
 from datetime import datetime
 from pathlib import Path
 
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, Depends, File, UploadFile
 
 from app.core.config import settings
-from app.core.deps import CurrentUser
+from app.core.deps import CurrentUser, get_current_user
 from app.core.response import fail, ok
 
 router = APIRouter(prefix="/api/v1/admin", tags=["上传"])
@@ -27,7 +27,10 @@ def _sniff_image(data: bytes) -> bool:
 
 
 @router.post("/upload")
-async def upload(user: CurrentUser, file: UploadFile = File(...)):
+async def upload(
+    file: UploadFile = File(...),
+    user: CurrentUser = Depends(get_current_user),
+):
     """上传图片，返回 {url}；仅后台登录用户可调用。"""
     filename = file.filename or ""
     ext = Path(filename).suffix.lower()

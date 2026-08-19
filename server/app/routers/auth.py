@@ -5,7 +5,9 @@ from fastapi import APIRouter, Request
 
 from app.core import captcha
 from app.core.config import settings
-from app.core.deps import CurrentUser, DbDep, get_permissions
+from fastapi import Depends
+
+from app.core.deps import CurrentUser, DbDep, get_current_user, get_permissions
 from app.core.response import fail, ok
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models import OperationLog, SysUser
@@ -95,13 +97,13 @@ def login(body: LoginRequest, request: Request, db: DbDep):
 
 
 @router.post("/logout")
-def logout(user: CurrentUser):
+def logout(user: CurrentUser = Depends(get_current_user)):
     """登出（JWT 无状态，前端清除 token 即可；此接口记录操作日志）。"""
     return ok(message="已退出登录")
 
 
 @router.get("/me")
-def me(user: CurrentUser):
+def me(user: CurrentUser = Depends(get_current_user)):
     """当前登录用户信息 + 权限矩阵（前端据此渲染菜单）。"""
     return ok(
         data={
@@ -124,7 +126,7 @@ def me(user: CurrentUser):
 
 
 @router.put("/password")
-def change_password(body: ChangePasswordRequest, user: CurrentUser, db: DbDep):
+def change_password(body: ChangePasswordRequest, db: DbDep, user: CurrentUser = Depends(get_current_user)):
     """修改密码（需原密码；强制改密后清除 must_change_pwd 标记）。"""
     if not verify_password(body.old_password, user.password_hash):
         return fail("原密码错误", code=400)
@@ -140,7 +142,7 @@ def change_password(body: ChangePasswordRequest, user: CurrentUser, db: DbDep):
 
 
 @router.put("/avatar")
-def update_avatar(body: UpdateAvatarRequest, user: CurrentUser, db: DbDep):
+def update_avatar(body: UpdateAvatarRequest, db: DbDep, user: CurrentUser = Depends(get_current_user)):
     """更新头像（提交经 /api/v1/admin/upload 返回的 URL）。"""
     user.avatar = body.avatar_url
     user.updated_at = user.username

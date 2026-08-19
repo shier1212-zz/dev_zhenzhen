@@ -35,11 +35,40 @@ UPLOADS_DIR = Path(settings.UPLOAD_DIR).resolve()
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
-# 业务路由（M1-步骤4：认证 + 上传；M2 起补充公开接口与后台 CRUD）
-from app.routers import auth, upload
+# 业务路由
+from app.routers import (
+    about,
+    auth,
+    banners,
+    categories,
+    contact,
+    departments,
+    home,
+    logs,
+    messages,
+    news,
+    products,
+    public,
+    roles,
+    upload,
+    users,
+)
 
-app.include_router(auth.router)
-app.include_router(upload.router)
+app.include_router(public.router)          # 前台公开
+app.include_router(auth.router)            # 认证
+app.include_router(banners.router)         # 轮播
+app.include_router(news.router)            # 新闻
+app.include_router(home.router)            # 首页配置
+app.include_router(about.router)           # 关于我们
+app.include_router(contact.router)         # 联系信息
+app.include_router(categories.router)      # 产品分类
+app.include_router(products.router)        # 产品
+app.include_router(messages.router)        # 留言
+app.include_router(departments.router)     # 部门
+app.include_router(roles.router)           # 角色
+app.include_router(users.router)           # 账号
+app.include_router(logs.router)            # 操作日志
+app.include_router(upload.router)          # 文件上传
 
 
 @app.get("/api/health", tags=["system"])

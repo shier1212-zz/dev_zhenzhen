@@ -8,16 +8,15 @@ from sqlalchemy.orm import Session
 
 from app.core.database import get_db
 from app.core.security import decode_access_token
+from app.models import SysUser  # models 不依赖 deps，无循环
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/admin/auth/login")
 
 DbDep = Annotated[Session, Depends(get_db)]
 
 
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: DbDep):
+def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: DbDep) -> SysUser:
     """根据 JWT 解析当前登录用户；无效 / 不存在 / 停用则 401。"""
-    from app.models import SysUser  # 延迟导入避免循环依赖
-
     payload = decode_access_token(token)
     if payload is None or "sub" not in payload:
         raise HTTPException(
@@ -31,7 +30,8 @@ def get_current_user(token: Annotated[str, Depends(oauth2_scheme)], db: DbDep):
     return user
 
 
-CurrentUser = Annotated[object, Depends(get_current_user)]
+# 纯类型别名（配合默认值 Depends 使用，见 require）
+CurrentUser = SysUser
 
 
 def get_permissions(user) -> dict:
@@ -49,10 +49,10 @@ def get_permissions(user) -> dict:
 def require(module: str, action: str = "view"):
     """模块级权限依赖：要求当前用户角色拥有 {module: [action]} 权限。
 
-    用法：def list_banners(user=Depends(require("banner", "view"))): ...
+    用法：def list_banners(_user: SysUser = Depends(require("banner", "view"))): ...
     """
 
-    def checker(user: CurrentUser):
+    def checker(user: SysUser = Depends(get_current_user)):
         perms = get_permissions(user)
         actions = perms.get(module, [])
         if action not in actions:
