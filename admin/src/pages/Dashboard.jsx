@@ -20,34 +20,39 @@ export default function Dashboard() {
       setLoading(true);
       try {
         // 按权限矩阵拉取，无权限模块不请求，避免整页 403 失败
-        const jobs = [];
+        // 注意：统计卡数据与留言/日志数据必须分两个 Promise.all，
+        // 否则 setPendings/setLogs 任务解析为 undefined 会让后续 forEach 的解构抛异常
+        const statJobs = [];
         if (hasPerm("product", "view"))
-          jobs.push(productApi.list({ page: 1, page_size: 1 }).then((r) => ["product", r.total]));
+          statJobs.push(productApi.list({ page: 1, page_size: 1 }).then((r) => ["product", r.total]));
         if (hasPerm("news", "view"))
-          jobs.push(newsApi.list({ page: 1, page_size: 1 }).then((r) => ["news", r.total]));
+          statJobs.push(newsApi.list({ page: 1, page_size: 1 }).then((r) => ["news", r.total]));
         if (hasPerm("message", "view"))
-          jobs.push(
+          statJobs.push(
             messageApi
               .list({ page: 1, page_size: 1, status: 0 })
               .then((r) => ["message", r.total])
           );
         if (hasPerm("user", "view"))
-          jobs.push(userApi.list({ page: 1, page_size: 1 }).then((r) => ["user", r.total]));
-        if (hasPerm("message", "view"))
-          jobs.push(
-            messageApi
-              .list({ page: 1, page_size: 5, status: 0 })
-              .then((r) => setPendings(r.items || []))
-          );
-        if (hasPerm("log", "view"))
-          jobs.push(logApi.list({ page: 1, page_size: 6 }).then((r) => setLogs(r.items || [])));
+          statJobs.push(userApi.list({ page: 1, page_size: 1 }).then((r) => ["user", r.total]));
 
-        const results = await Promise.all(jobs);
+        const [statResults, pendingRes, logRes] = await Promise.all([
+          Promise.all(statJobs),
+          hasPerm("message", "view")
+            ? messageApi.list({ page: 1, page_size: 5, status: 0 })
+            : Promise.resolve(null),
+          hasPerm("log", "view")
+            ? logApi.list({ page: 1, page_size: 6 })
+            : Promise.resolve(null),
+        ]);
+
         const next = { product: 0, news: 0, message: 0, user: 0 };
-        results.forEach(([k, v]) => {
-          next[k] = v;
+        statResults.forEach(([k, v]) => {
+          next[k] = v ?? 0;
         });
         setStats(next);
+        if (pendingRes) setPendings(pendingRes.items || []);
+        if (logRes) setLogs(logRes.items || []);
       } finally {
         setLoading(false);
       }
