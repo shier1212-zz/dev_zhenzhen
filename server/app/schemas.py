@@ -285,12 +285,14 @@ class BatchStatusRequest(BaseModel):
 
 # ---------- 留言 Message ----------
 class MessageCreate(BaseModel):
-    """前台留言提交。"""
+    """前台留言提交（验证码可选：提交即校验）。"""
 
     name: str = Field(min_length=1, max_length=50)
     phone: str = Field(min_length=1, max_length=20)
     company: str | None = Field(default=None, max_length=100)
     content: str = Field(min_length=1, max_length=500)
+    captcha_id: str | None = Field(default=None, max_length=64)
+    captcha: str | None = Field(default=None, max_length=10)
 
 
 class MessageUpdate(BaseModel):

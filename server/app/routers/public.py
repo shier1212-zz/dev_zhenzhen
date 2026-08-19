@@ -7,6 +7,7 @@ import json
 
 from fastapi import APIRouter, Query, Request
 
+from app.core import captcha
 from app.core.deps import DbDep
 from app.core.ratelimit import message_limiter
 from app.core.response import fail, ok
@@ -295,7 +296,12 @@ def public_contact(db: DbDep):
 
 @router.post("/messages")
 def public_message_create(body: MessageCreate, request: Request, db: DbDep):
-    """提交留言：单 IP 5 分钟内最多 3 条（超限 429）。"""
+    """提交留言：可选图形验证码校验 + 单 IP 5 分钟内最多 3 条（超限 429）。"""
+    # 图形验证码（可选：提交即校验）
+    if body.captcha_id and body.captcha:
+        if not captcha.verify(body.captcha_id, body.captcha):
+            return fail("验证码错误或已过期", code=400)
+
     ip = request.client.host if request.client else ""
     if not message_limiter.allow(f"msg:{ip}", limit=3, window_seconds=300):
         return fail("提交过于频繁，请 5 分钟后再试", code=429, status_code=429)
