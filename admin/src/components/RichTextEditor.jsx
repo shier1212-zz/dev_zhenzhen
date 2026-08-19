@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Editor, Toolbar } from "@wangeditor/editor-for-react";
+import "@wangeditor/editor/dist/css/style.css";
 import { uploadApi } from "../api";
 
 // 富文本编辑器（wangEditor 5）。value/onChange 受控，父组件回传相同 html 时为空操作，不跳光标。
