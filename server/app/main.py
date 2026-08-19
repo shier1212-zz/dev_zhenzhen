@@ -25,17 +25,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# 操作日志中间件（写操作自动记录）
+from app.middleware.operation_log import OperationLogMiddleware
+
+app.add_middleware(OperationLogMiddleware)
+
 # 上传目录静态托管（/uploads -> server/uploads）
 UPLOADS_DIR = Path(settings.UPLOAD_DIR).resolve()
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
-# 业务路由（M1-步骤3 起逐个挂载）：
-# from app.routers import auth, banners, news, home, contact, categories,
-# products, messages, users, roles, departments, logs, upload
-# from app.routers import public
-# app.include_router(public.router)
-# ...
+# 业务路由（M1-步骤4：认证 + 上传；M2 起补充公开接口与后台 CRUD）
+from app.routers import auth, upload
+
+app.include_router(auth.router)
+app.include_router(upload.router)
 
 
 @app.get("/api/health", tags=["system"])
