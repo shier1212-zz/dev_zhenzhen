@@ -1,8 +1,15 @@
 """数据库引擎与会话管理（SQLite + WAL）。"""
+from pathlib import Path
+
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from app.core.config import settings
+
+if settings.DB_URL.startswith("sqlite"):
+    _db_path = settings.DB_URL.replace("sqlite:///", "", 1)
+    if _db_path != ":memory:":
+        Path(_db_path).parent.mkdir(parents=True, exist_ok=True)
 
 connect_args = (
     {"check_same_thread": False} if settings.DB_URL.startswith("sqlite") else {}
