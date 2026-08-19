@@ -1,0 +1,17 @@
+# 构建上下文排除项（Docker 构建用）
+.git
+.gitignore
+**/node_modules
+**/dist
+**/__pycache__
+**/*.pyc
+server/.venv
+server/data
+server/uploads
+*.db
+*.sqlite
+.env
+README.md
+doc
+md
+prototype

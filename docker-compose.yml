@@ -1,0 +1,44 @@
+# 蓁蓁智能家居企业官网 — 生产部署编排
+# 用法：cp .env.example .env && docker compose up -d --build
+# 前台 http://localhost:8080  |  后台 http://localhost:8081  |  API http://localhost:8000
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    env_file: .env
+    environment:
+      - DB_URL=sqlite:////app/data/zhz.db
+      - UPLOAD_DIR=/app/uploads
+      - JWT_SECRET=${JWT_SECRET:-please-change-me-in-production}
+      - CORS_ORIGINS=${CORS_ORIGINS:-["http://localhost:8080","http://localhost:8081"]}
+    volumes:
+      - api-data:/app/data
+      - api-uploads:/app/uploads
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  web-front:
+    build:
+      context: .
+      dockerfile: Dockerfile.front
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+  admin-front:
+    build:
+      context: .
+      dockerfile: Dockerfile.admin
+    depends_on:
+      - api
+    ports:
+      - "8081:80"
+    restart: unless-stopped
+
+volumes:
+  api-data:
+  api-uploads:

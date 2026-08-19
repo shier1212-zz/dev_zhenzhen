@@ -1,0 +1,3 @@
+# 开发/测试依赖（不随运行时镜像安装）
+pytest==9.1.1
+# httpx 已含在 requirements.txt（FastAPI TestClient 需要）
