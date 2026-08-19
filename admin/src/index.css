@@ -1,0 +1,41 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  background: #f0f2f5;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+a {
+  color: inherit;
+}
+
+/* 富文本编辑器最小高度 */
+.w-e-text-container {
+  min-height: 320px;
+  background: #fff;
+}
+
+.rich-editor-wrap .w-e-toolbar {
+  border-color: #d9d9d9 !important;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.rich-editor-wrap .w-e-text-container {
+  border-color: #d9d9d9 !important;
+  border-bottom-left-radius: 6px;
+  border-bottom-right-radius: 6px;
+}
