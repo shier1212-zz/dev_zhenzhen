@@ -41,7 +41,7 @@ def list_products(
     db: DbDep,
     _user: CurrentUser = Depends(require("product", "view")),
     page: int = Query(default=1, ge=1),
-    page_size: int = Query(default=10, ge=1, le=100),
+    page_size: int = Query(default=10, ge=1, le=200),
     keyword: str | None = Query(default=None, max_length=50),
     category_id: int | None = Query(default=None),
     status: int | None = Query(default=None, ge=0, le=1),
