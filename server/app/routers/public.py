@@ -6,6 +6,7 @@
 import json
 
 from fastapi import APIRouter, Query, Request
+from sqlalchemy import case, func
 
 from app.core import captcha
 from app.core.deps import DbDep
@@ -107,15 +108,24 @@ def public_home_config(db: DbDep):
 
 @router.get("/categories")
 def public_categories(db: DbDep):
-    """产品分类：启用且分类下存在上架产品（或全部启用分类）。"""
+    """产品分类：启用分类 + 每个分类下上架产品数量。"""
     items = (
         db.query(ProductCategory)
         .filter(ProductCategory.is_activate == 1)
         .order_by(ProductCategory.sort.asc(), ProductCategory.id.asc())
         .all()
     )
+    counts = dict(
+        db.query(Product.category_id, func.count(Product.id))
+        .filter(Product.is_activate == 1, Product.status == 1)
+        .group_by(Product.category_id)
+        .all()
+    )
     return ok(data={
-        "items": [{"id": c.id, "name": c.name, "sort": c.sort} for c in items],
+        "items": [
+            {"id": c.id, "name": c.name, "sort": c.sort, "count": counts.get(c.id, 0)}
+            for c in items
+        ],
         "total": len(items), "page": 1, "page_size": len(items) or 1,
     })
 
@@ -126,18 +136,28 @@ def public_products(
     category_id: int | None = Query(default=None),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=12, ge=1, le=50),
+    sort: str = Query(default="default", max_length=20),
 ):
-    """产品列表：仅上架；category_id 筛选；sort 升序 + 创建时间倒序。"""
+    """产品列表：仅上架；category_id 筛选；支持 default/price_asc/price_desc/newest/oldest 排序。"""
     q = db.query(Product).filter(Product.is_activate == 1, Product.status == 1)
     if category_id:
         q = q.filter(Product.category_id == category_id)
+
+    # 价格排序时把无价格记录放最后
+    price_null_last = case((Product.price_min.is_(None), 1), else_=0)
+    if sort == "price_asc":
+        q = q.order_by(price_null_last, Product.price_min.asc(), Product.id.desc())
+    elif sort == "price_desc":
+        q = q.order_by(price_null_last, Product.price_min.desc(), Product.id.desc())
+    elif sort == "newest":
+        q = q.order_by(Product.created_date.desc(), Product.id.desc())
+    elif sort == "oldest":
+        q = q.order_by(Product.created_date.asc(), Product.id.desc())
+    else:
+        q = q.order_by(Product.sort.asc(), Product.created_date.desc())
+
     total = q.count()
-    items = (
-        q.order_by(Product.sort.asc(), Product.created_date.desc())
-        .offset((page - 1) * page_size)
-        .limit(page_size)
-        .all()
-    )
+    items = q.offset((page - 1) * page_size).limit(page_size).all()
     cat_names = {c.id: c.name for c in db.query(ProductCategory).all()}
     return ok(data={
         "items": [
