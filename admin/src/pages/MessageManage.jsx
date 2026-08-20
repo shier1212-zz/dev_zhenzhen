@@ -90,6 +90,13 @@ export default function MessageManage() {
       width: 100,
       render: (v) => <Tag color={v ? "green" : "orange"}>{v ? "已处理" : "待处理"}</Tag>,
     },
+    {
+      title: "接收时间",
+      dataIndex: "created_date",
+      width: 170,
+      render: (v) =>
+        v ? (typeof v === "string" ? v.replace("T", " ").slice(0, 16) : v) : "-",
+    },
     { title: "IP", dataIndex: "ip", width: 120, render: (v) => v || "-" },
     {
       title: "操作",
