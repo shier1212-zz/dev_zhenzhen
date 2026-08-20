@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
   Button,
   Space,
   Tag,
-  Modal,
-  Form,
-  Input,
-  InputNumber,
   Typography,
   Popconfirm,
   message,
@@ -18,11 +15,9 @@ import { categoryApi } from "../api";
 import { hasPerm } from "../store/auth";
 
 export default function CategoryManage() {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form] = Form.useForm();
 
   const canEdit = hasPerm("product", "edit");
 
@@ -42,29 +37,11 @@ export default function CategoryManage() {
   }, []);
 
   const openCreate = () => {
-    setEditing(null);
-    form.resetFields();
-    form.setFieldsValue({ sort: 0 });
-    setModalOpen(true);
+    navigate("/category/new");
   };
 
   const openEdit = (row) => {
-    setEditing(row);
-    form.setFieldsValue(row);
-    setModalOpen(true);
-  };
-
-  const handleOk = async () => {
-    const v = await form.validateFields();
-    if (editing) {
-      await categoryApi.update(editing.id, v);
-      message.success("修改成功");
-    } else {
-      await categoryApi.create(v);
-      message.success("新增成功");
-    }
-    setModalOpen(false);
-    load();
+    navigate(`/category/${row.id}/edit`);
   };
 
   const handleDelete = async (row) => {
@@ -126,25 +103,6 @@ export default function CategoryManage() {
           pagination={false}
         />
       </Card>
-
-      <Modal
-        title={editing ? "编辑分类" : "新增分类"}
-        open={modalOpen}
-        onOk={handleOk}
-        onCancel={() => setModalOpen(false)}
-        okText="保存"
-        cancelText="取消"
-        destroyOnClose
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="分类名称" rules={[{ required: true, message: "请输入分类名称" }]}>
-            <Input placeholder="分类名称" maxLength={50} />
-          </Form.Item>
-          <Form.Item name="sort" label="排序" rules={[{ required: true }]}>
-            <InputNumber min={0} style={{ width: "100%" }} />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 }
