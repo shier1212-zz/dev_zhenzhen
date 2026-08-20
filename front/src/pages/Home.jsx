@@ -217,24 +217,24 @@ function BrandSection({ cfg }) {
   const items = advantages.length > 0 ? advantages : fallback;
 
   return (
-    <section className="container-content py-20 md:py-28">
-      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+    <section className="bg-gradient-to-b from-[#0A5C54] via-[#0C3D38] to-[#0E1B24] py-20 md:py-28">
+      <div className="container-content grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
         <Reveal>
-          <span className="eyebrow">品牌理念</span>
-          <h2 className="section-title mt-4">{cfg.brand_slogan || "让家更懂你"}</h2>
-          <p className="mt-5 leading-7 text-neutral-600">
+          <span className="eyebrow !bg-primary/20 !text-primary-light">品牌理念</span>
+          <h2 className="section-title mt-4 !text-white">{cfg.brand_slogan || "让家更懂你"}</h2>
+          <p className="mt-5 leading-7 text-neutral-300">
             {cfg.brand_desc || "以科技重塑居家体验，用智能连接美好生活。"}
           </p>
         </Reveal>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-7">
           {items.slice(0, 4).map((a, i) => (
             <Reveal key={i} delay={i * 100}>
-              <div className="card card-hover p-6 md:p-7">
-                <span className="flex h-11 w-11 items-center justify-center rounded-md bg-primary-light text-primary-deep">
+              <div className="rounded-md border border-white/10 bg-white/5 p-6 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-card-hover md:p-7">
+                <span className="flex h-11 w-11 items-center justify-center rounded-md bg-primary/20 text-primary-light">
                   <Icon name={a.icon} />
                 </span>
-                <h3 className="mt-4 text-lg font-semibold text-neutral-900">{a.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-neutral-500">{a.desc}</p>
+                <h3 className="mt-4 text-lg font-semibold text-white">{a.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-neutral-300">{a.desc}</p>
               </div>
             </Reveal>
           ))}
@@ -262,29 +262,32 @@ function Icon({ name }) {
 function FeaturedProducts({ items }) {
   if (items.length === 0) return null;
   return (
-    <section className="bg-neutral-50 py-20 md:py-28">
+    <section className="bg-gradient-to-b from-[#142B56] via-[#10223F] to-[#0D1B33] py-20 md:py-28">
       <div className="container-content">
         <Reveal className="flex items-end justify-between">
           <div>
-            <span className="eyebrow">精选产品</span>
-            <h2 className="section-title mt-4">为您甄选</h2>
+            <span className="eyebrow !bg-primary/20 !text-primary-light">精选产品</span>
+            <h2 className="section-title mt-4 !text-white">为您甄选</h2>
           </div>
-          <Link to="/products" className="hidden text-sm font-medium text-primary hover:text-primary-deep md:block">
+          <Link to="/products" className="hidden text-sm font-medium text-primary-light hover:text-white md:block">
             查看全部 →
           </Link>
         </Reveal>
         <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-7">
           {items.map((p, i) => (
             <Reveal key={p.id} delay={i * 100}>
-              <Link to={`/products/${p.id}`} className="card card-hover group overflow-hidden">
+              <Link
+                to={`/products/${p.id}`}
+                className="group block overflow-hidden rounded-md border border-white/10 bg-neutral-800/80 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-card-hover"
+              >
                 <div className="overflow-hidden">
                   <Img src={p.cover_image} alt={p.name} className="aspect-[4/3] w-full transition-transform duration-300 group-hover:scale-105" />
                 </div>
                 <div className="p-5">
-                  <h3 className="truncate text-base font-medium text-neutral-900">{p.name}</h3>
-                  {p.brief && <p className="mt-1.5 truncate text-xs text-neutral-500">{p.brief}</p>}
+                  <h3 className="truncate text-base font-medium text-white">{p.name}</h3>
+                  {p.brief && <p className="mt-1.5 truncate text-xs text-neutral-400">{p.brief}</p>}
                   {p.show_price === 1 && p.price_min != null && (
-                    <p className="mt-2.5 text-sm font-semibold text-primary">
+                    <p className="mt-2.5 text-sm font-semibold text-primary-light">
                       ¥{Number(p.price_min).toLocaleString()}
                       {p.price_max && p.price_max !== p.price_min ? ` - ¥${Number(p.price_max).toLocaleString()}` : " 起"}
                     </p>
@@ -303,29 +306,34 @@ function FeaturedProducts({ items }) {
 function NewsPreview({ items }) {
   if (items.length === 0) return null;
   return (
-    <section className="container-content py-20 md:py-28">
-      <Reveal className="flex items-end justify-between">
-        <div>
-          <span className="eyebrow">新闻资讯</span>
-          <h2 className="section-title mt-4">企业动态</h2>
+    <section className="bg-gradient-to-b from-[#3B2468] via-[#2A1A4E] to-[#20133C] py-20 md:py-28">
+      <div className="container-content">
+        <Reveal className="flex items-end justify-between">
+          <div>
+            <span className="eyebrow !bg-primary/20 !text-primary-light">新闻资讯</span>
+            <h2 className="section-title mt-4 !text-white">企业动态</h2>
+          </div>
+          <Link to="/news" className="hidden text-sm font-medium text-primary-light hover:text-white md:block">
+            全部资讯 →
+          </Link>
+        </Reveal>
+        <div className="mt-12 grid gap-7 md:grid-cols-3 lg:gap-8">
+          {items.map((n, i) => (
+            <Reveal key={n.id} delay={i * 120}>
+              <Link
+                to={`/news/${n.id}`}
+                className="group block overflow-hidden rounded-md border border-white/10 bg-neutral-800/80 shadow-card transition-all duration-200 hover:-translate-y-1 hover:border-primary/40 hover:shadow-card-hover"
+              >
+                <Img src={n.cover_image} alt={n.title} className="aspect-[16/9] w-full" />
+                <div className="p-6">
+                  <p className="text-xs text-neutral-400">{n.published_at ? new Date(n.published_at).toLocaleDateString("zh-CN") : ""}</p>
+                  <h3 className="mt-2.5 line-clamp-2 text-base font-medium text-white">{n.title}</h3>
+                  {n.summary && <p className="mt-2.5 line-clamp-2 text-sm text-neutral-300">{n.summary}</p>}
+                </div>
+              </Link>
+            </Reveal>
+          ))}
         </div>
-        <Link to="/news" className="hidden text-sm font-medium text-primary hover:text-primary-deep md:block">
-          全部资讯 →
-        </Link>
-      </Reveal>
-      <div className="mt-12 grid gap-7 md:grid-cols-3 lg:gap-8">
-        {items.map((n, i) => (
-          <Reveal key={n.id} delay={i * 120}>
-            <Link to={`/news/${n.id}`} className="card card-hover overflow-hidden">
-              <Img src={n.cover_image} alt={n.title} className="aspect-[16/9] w-full" />
-              <div className="p-6">
-                <p className="text-xs text-neutral-400">{n.published_at ? new Date(n.published_at).toLocaleDateString("zh-CN") : ""}</p>
-                <h3 className="mt-2.5 line-clamp-2 text-base font-medium text-neutral-900">{n.title}</h3>
-                {n.summary && <p className="mt-2.5 line-clamp-2 text-sm text-neutral-500">{n.summary}</p>}
-              </div>
-            </Link>
-          </Reveal>
-        ))}
       </div>
     </section>
   );
