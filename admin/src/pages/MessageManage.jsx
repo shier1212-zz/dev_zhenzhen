@@ -19,6 +19,20 @@ import {
 import { messageApi } from "../api";
 import { hasPerm } from "../store/auth";
 
+// 数据库存 UTC（SQLite CURRENT_TIMESTAMP），统一转为北京时间（UTC+8）显示
+function formatBeijing(v) {
+  if (!v) return "-";
+  const s = typeof v === "string" ? v.replace(" ", "T") : v;
+  const hasTz = /[Z]|[+-]\d{2}:\d{2}$/.test(s);
+  const d = new Date(hasTz ? s : s + "Z");
+  if (isNaN(d.getTime())) return String(v);
+  const b = new Date(d.getTime() + 8 * 3600 * 1000); // UTC → UTC+8
+  const p = (n) => String(n).padStart(2, "0");
+  return `${b.getUTCFullYear()}-${p(b.getUTCMonth() + 1)}-${p(b.getUTCDate())} ${p(
+    b.getUTCHours()
+  )}:${p(b.getUTCMinutes())}`;
+}
+
 export default function MessageManage() {
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
@@ -94,8 +108,7 @@ export default function MessageManage() {
       title: "接收时间",
       dataIndex: "created_date",
       width: 170,
-      render: (v) =>
-        v ? (typeof v === "string" ? v.replace("T", " ").slice(0, 16) : v) : "-",
+      render: formatBeijing,
     },
     { title: "IP", dataIndex: "ip", width: 120, render: (v) => v || "-" },
     {
