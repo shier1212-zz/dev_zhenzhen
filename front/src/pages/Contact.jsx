@@ -81,7 +81,7 @@ export default function Contact() {
 
   return (
     <>
-      <PageHero title="联系我们" subtitle="期待与您的每一次沟通，为您提供专业智能家居解决方案" />
+      <PageHero dark title="联系我们" subtitle="期待与您的每一次沟通，为您提供专业智能家居解决方案" />
 
       <div className="container-content grid gap-10 py-10 md:grid-cols-[1fr_420px] md:py-14">
         {/* 留言表单 */}

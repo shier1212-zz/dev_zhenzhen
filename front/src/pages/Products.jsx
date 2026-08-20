@@ -97,7 +97,11 @@ export default function Products() {
 
   return (
     <>
-      <PageHero title="产品中心" subtitle="全屋智能 · 一站定制，探索更懂你的智能生活" />
+      <PageHero
+        dark
+        title="产品中心"
+        subtitle="全屋智能 · 一站定制，探索更懂你的智能生活"
+      />
       <div className="container-content grid gap-8 py-10 md:grid-cols-[240px_1fr] md:py-14">
         {/* 左侧分类侧栏 */}
         <aside className="h-fit rounded-lg bg-white p-4 shadow-card">

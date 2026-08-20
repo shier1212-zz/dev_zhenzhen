@@ -66,7 +66,7 @@ export default function About() {
 
   return (
     <>
-      <PageHero title="关于我们" subtitle="以自然之名，造智慧之家" />
+      <PageHero dark title="关于我们" subtitle="以自然之名，造智慧之家" />
 
       {/* 品牌故事 */}
       {data.brand_story && (

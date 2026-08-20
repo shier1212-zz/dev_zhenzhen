@@ -30,7 +30,7 @@ export default function News() {
 
   return (
     <>
-      <PageHero title="新闻资讯" subtitle="了解蓁蓁智能家居的最新动态与行业洞察" />
+      <PageHero dark title="新闻资讯" subtitle="了解蓁蓁智能家居的最新动态与行业洞察" />
       <div className="container-content py-10 md:py-14">
         {error ? (
           <ErrorBox message={error} onRetry={load} />
