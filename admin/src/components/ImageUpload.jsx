@@ -7,7 +7,7 @@ import { uploadApi } from "../api";
 export default function ImageUpload({ value, onChange, width = 104, height = 104 }) {
   const customRequest = async ({ file, onSuccess, onError }) => {
     try {
-      const url = await uploadApi.upload(file);
+      const { url } = await uploadApi.upload(file);
       onChange && onChange(url);
       onSuccess(url);
     } catch (e) {

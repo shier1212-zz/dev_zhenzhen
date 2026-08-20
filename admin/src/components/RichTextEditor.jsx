@@ -13,7 +13,7 @@ export default function RichTextEditor({ value = "", onChange, height = 360 }) {
       uploadImage: {
         customUpload: async (file, insertFn) => {
           try {
-            const url = await uploadApi.upload(file);
+            const { url } = await uploadApi.upload(file);
             insertFn(url, file.name || "图片", url);
           } catch (e) {
             // 上传失败由全局拦截器提示

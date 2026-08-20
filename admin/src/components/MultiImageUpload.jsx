@@ -7,7 +7,7 @@ import { uploadApi } from "../api";
 export default function MultiImageUpload({ value = [], onChange, maxCount = 8 }) {
   const customRequest = async ({ file, onSuccess, onError }) => {
     try {
-      const url = await uploadApi.upload(file);
+      const { url } = await uploadApi.upload(file);
       const next = [...(value || []), url];
       onChange && onChange(next);
       onSuccess(url);
