@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
@@ -7,8 +8,6 @@ import {
   Input,
   Select,
   Tag,
-  Modal,
-  Form,
   Image,
   Typography,
   Popconfirm,
@@ -17,20 +16,15 @@ import {
 import { PlusOutlined } from "@ant-design/icons";
 import { newsApi } from "../api";
 import { hasPerm } from "../store/auth";
-import ImageUpload from "../components/ImageUpload";
-import RichTextEditor from "../components/RichTextEditor";
 
 export default function NewsManage() {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [status, setStatus] = useState(null);
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form] = Form.useForm();
 
   const canEdit = hasPerm("news", "edit");
 
@@ -56,30 +50,11 @@ export default function NewsManage() {
   }, [page, status]);
 
   const openCreate = () => {
-    setEditing(null);
-    form.resetFields();
-    form.setFieldsValue({ status: 0 });
-    setModalOpen(true);
+    navigate("/news/new");
   };
 
-  const openEdit = async (row) => {
-    const d = await newsApi.get(row.id);
-    setEditing(row);
-    form.setFieldsValue(d);
-    setModalOpen(true);
-  };
-
-  const handleOk = async () => {
-    const v = await form.validateFields();
-    if (editing) {
-      await newsApi.update(editing.id, v);
-      message.success("修改成功");
-    } else {
-      await newsApi.create(v);
-      message.success("新增成功");
-    }
-    setModalOpen(false);
-    load();
+  const openEdit = (row) => {
+    navigate(`/news/${row.id}/edit`);
   };
 
   const handleDelete = async (row) => {
@@ -160,43 +135,6 @@ export default function NewsManage() {
           pagination={{ current: page, total, pageSize: 10, onChange: setPage }}
         />
       </Card>
-
-      <Modal
-        title={editing ? "编辑新闻" : "新增新闻"}
-        open={modalOpen}
-        onOk={handleOk}
-        onCancel={() => setModalOpen(false)}
-        okText="保存"
-        cancelText="取消"
-        width={800}
-        destroyOnClose
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="title" label="标题" rules={[{ required: true, message: "请输入标题" }]}>
-            <Input placeholder="新闻标题" maxLength={100} />
-          </Form.Item>
-          <Form.Item name="category" label="分类">
-            <Input placeholder="如：公司动态 / 行业资讯" maxLength={50} />
-          </Form.Item>
-          <Form.Item name="cover_image" label="封面图">
-            <ImageUpload width={160} height={96} />
-          </Form.Item>
-          <Form.Item name="summary" label="摘要">
-            <Input.TextArea rows={2} maxLength={200} placeholder="列表摘要（可选）" />
-          </Form.Item>
-          <Form.Item name="content" label="正文">
-            <RichTextEditor />
-          </Form.Item>
-          <Form.Item name="status" label="状态" rules={[{ required: true }]}>
-            <Select
-              options={[
-                { value: 0, label: "草稿" },
-                { value: 1, label: "发布" },
-              ]}
-            />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 }
