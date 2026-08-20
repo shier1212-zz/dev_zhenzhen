@@ -1,42 +1,29 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
   Button,
   Space,
   Input,
-  Select,
   Tag,
   Modal,
   Form,
-  InputNumber,
-  Switch,
   Typography,
   Popconfirm,
   message,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { userApi, departmentApi, roleApi } from "../api";
+import { userApi } from "../api";
 import { hasPerm } from "../store/auth";
 
-const GENDERS = [
-  { value: 0, label: "未知" },
-  { value: 1, label: "男" },
-  { value: 2, label: "女" },
-];
-
 export default function UserManage() {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [keyword, setKeyword] = useState("");
-  const [departments, setDepartments] = useState([]);
-  const [roles, setRoles] = useState([]);
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form] = Form.useForm();
 
   const [resetOpen, setResetOpen] = useState(false);
   const [resetId, setResetId] = useState(null);
@@ -60,41 +47,16 @@ export default function UserManage() {
   };
 
   useEffect(() => {
-    departmentApi.list({}).then((r) => setDepartments(r.items || []));
-    roleApi.list().then((r) => setRoles(r.items || []));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   const openCreate = () => {
-    setEditing(null);
-    form.resetFields();
-    form.setFieldsValue({ gender: 0, is_activate: 1 });
-    setModalOpen(true);
+    navigate("/user/new");
   };
 
-  const openEdit = async (row) => {
-    const d = await userApi.get(row.id);
-    setEditing(row);
-    form.setFieldsValue(d);
-    setModalOpen(true);
-  };
-
-  const handleOk = async () => {
-    const v = await form.validateFields();
-    if (editing) {
-      await userApi.update(editing.id, v);
-      message.success("修改成功");
-    } else {
-      await userApi.create(v);
-      message.success("新增成功");
-    }
-    setModalOpen(false);
-    load();
+  const openEdit = (row) => {
+    navigate(`/user/${row.id}/edit`);
   };
 
   const toggleStatus = async (row) => {
@@ -124,9 +86,6 @@ export default function UserManage() {
       load();
     } catch (e) {}
   };
-
-  const deptOptions = departments.map((d) => ({ value: d.id, label: d.name }));
-  const roleOptions = roles.map((r) => ({ value: r.id, label: r.name }));
 
   const columns = [
     { title: "登录名", dataIndex: "username", width: 110 },
@@ -193,62 +152,6 @@ export default function UserManage() {
           pagination={{ current: page, total, pageSize: 10, onChange: setPage }}
         />
       </Card>
-
-      <Modal
-        title={editing ? "编辑账号" : "新增账号"}
-        open={modalOpen}
-        onOk={handleOk}
-        onCancel={() => setModalOpen(false)}
-        okText="保存"
-        cancelText="取消"
-        destroyOnClose
-      >
-        <Form form={form} layout="vertical">
-          <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
-            <Form.Item name="username" label="登录名" rules={[{ required: true, message: "3-50 位字母数字下划线" }]} style={{ flex: 1, minWidth: 180 }}>
-              <Input placeholder="登录名" disabled={!!editing} maxLength={50} />
-            </Form.Item>
-            {!editing && (
-              <Form.Item name="password" label="初始密码" rules={[{ required: true, message: "至少 6 位" }]} style={{ flex: 1, minWidth: 180 }}>
-                <Input.Password placeholder="至少 6 位" />
-              </Form.Item>
-            )}
-          </Space>
-          <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
-            <Form.Item name="real_name" label="姓名" style={{ flex: 1, minWidth: 160 }}>
-              <Input maxLength={50} />
-            </Form.Item>
-            <Form.Item name="nickname" label="昵称" style={{ flex: 1, minWidth: 160 }}>
-              <Input maxLength={50} />
-            </Form.Item>
-          </Space>
-          <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
-            <Form.Item name="phone" label="手机号" style={{ flex: 1, minWidth: 160 }}>
-              <Input maxLength={20} />
-            </Form.Item>
-            <Form.Item name="email" label="邮箱" style={{ flex: 1, minWidth: 160 }}>
-              <Input maxLength={100} />
-            </Form.Item>
-            <Form.Item name="gender" label="性别" style={{ minWidth: 120 }}>
-              <Select options={GENDERS} />
-            </Form.Item>
-          </Space>
-          <Form.Item name="post" label="职位">
-            <Input maxLength={64} />
-          </Form.Item>
-          <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
-            <Form.Item name="dept_id" label="部门" style={{ flex: 1, minWidth: 180 }}>
-              <Select placeholder="选择部门" allowClear options={deptOptions} />
-            </Form.Item>
-            <Form.Item name="role_id" label="角色" rules={[{ required: true, message: "请选择角色" }]} style={{ flex: 1, minWidth: 180 }}>
-              <Select placeholder="选择角色" options={roleOptions} />
-            </Form.Item>
-            <Form.Item name="is_activate" label="启用" valuePropName="checked" style={{ minWidth: 100 }}>
-              <Switch />
-            </Form.Item>
-          </Space>
-        </Form>
-      </Modal>
 
       <Modal
         title="重置密码"
