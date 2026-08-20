@@ -33,6 +33,47 @@ export default function Home() {
   );
 }
 
+/* ---------------- 滚动渐入组件（参考小米官网首页：向下滑动逐渐浮现） ---------------- */
+function Reveal({ children, className = "", delay = 0, as: Tag = "div" }) {
+  const ref = useRef(null);
+  const [shown, setShown] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return undefined;
+    // 无 IntersectionObserver 时直接显示（渐进增强，不影响无 JS 环境）
+    if (!("IntersectionObserver" in window)) {
+      setShown(true);
+      return undefined;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setShown(true);
+            io.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: "0px 0px -60px 0px" }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      ref={ref}
+      className={`transition-all duration-700 ease-out ${
+        shown ? "translate-y-0 opacity-100" : "translate-y-12 opacity-0"
+      } ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </Tag>
+  );
+}
+
 /* ---------------- 轮播 Banner ---------------- */
 function BannerCarousel() {
   const [banners, setBanners] = useState([]);
@@ -176,24 +217,26 @@ function BrandSection({ cfg }) {
   const items = advantages.length > 0 ? advantages : fallback;
 
   return (
-    <section className="container-content py-16 md:py-24">
-      <div className="grid items-center gap-12 lg:grid-cols-2">
-        <div>
+    <section className="container-content py-20 md:py-28">
+      <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <Reveal>
           <span className="eyebrow">品牌理念</span>
           <h2 className="section-title mt-4">{cfg.brand_slogan || "让家更懂你"}</h2>
-          <p className="mt-4 leading-7 text-neutral-600">
+          <p className="mt-5 leading-7 text-neutral-600">
             {cfg.brand_desc || "以科技重塑居家体验，用智能连接美好生活。"}
           </p>
-        </div>
-        <div className="grid grid-cols-2 gap-5">
+        </Reveal>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:gap-7">
           {items.slice(0, 4).map((a, i) => (
-            <div key={i} className="card card-hover p-5">
-              <span className="flex h-10 w-10 items-center justify-center rounded-md bg-primary-light text-primary-deep">
-                <Icon name={a.icon} />
-              </span>
-              <h3 className="mt-3 font-semibold text-neutral-900">{a.title}</h3>
-              <p className="mt-1.5 text-sm leading-6 text-neutral-500">{a.desc}</p>
-            </div>
+            <Reveal key={i} delay={i * 100}>
+              <div className="card card-hover p-6 md:p-7">
+                <span className="flex h-11 w-11 items-center justify-center rounded-md bg-primary-light text-primary-deep">
+                  <Icon name={a.icon} />
+                </span>
+                <h3 className="mt-4 text-lg font-semibold text-neutral-900">{a.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-neutral-500">{a.desc}</p>
+              </div>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -209,7 +252,7 @@ function Icon({ name }) {
     heart: <path d="M12 21C7 16.5 3 13.2 3 9.2 3 6.4 5.2 4 8 4c1.6 0 3.1.7 4 2 .9-1.3 2.4-2 4-2 2.8 0 5 2.4 5 5.2 0 4-4 7.3-9 11.8z" />,
   };
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
       {paths[name] || paths.shield}
     </svg>
   );
@@ -219,9 +262,9 @@ function Icon({ name }) {
 function FeaturedProducts({ items }) {
   if (items.length === 0) return null;
   return (
-    <section className="bg-neutral-50 py-16 md:py-24">
+    <section className="bg-neutral-50 py-20 md:py-28">
       <div className="container-content">
-        <div className="flex items-end justify-between">
+        <Reveal className="flex items-end justify-between">
           <div>
             <span className="eyebrow">精选产品</span>
             <h2 className="section-title mt-4">为您甄选</h2>
@@ -229,24 +272,26 @@ function FeaturedProducts({ items }) {
           <Link to="/products" className="hidden text-sm font-medium text-primary hover:text-primary-deep md:block">
             查看全部 →
           </Link>
-        </div>
-        <div className="mt-10 grid grid-cols-2 gap-5 md:grid-cols-4">
-          {items.map((p) => (
-            <Link key={p.id} to={`/products/${p.id}`} className="card card-hover group overflow-hidden">
-              <div className="overflow-hidden">
-                <Img src={p.cover_image} alt={p.name} className="aspect-[4/3] w-full transition-transform duration-300 group-hover:scale-105" />
-              </div>
-              <div className="p-4">
-                <h3 className="truncate font-medium text-neutral-900">{p.name}</h3>
-                {p.brief && <p className="mt-1 truncate text-xs text-neutral-500">{p.brief}</p>}
-                {p.show_price === 1 && p.price_min != null && (
-                  <p className="mt-2 text-sm font-semibold text-primary">
-                    ¥{Number(p.price_min).toLocaleString()}
-                    {p.price_max && p.price_max !== p.price_min ? ` - ¥${Number(p.price_max).toLocaleString()}` : " 起"}
-                  </p>
-                )}
-              </div>
-            </Link>
+        </Reveal>
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-7">
+          {items.map((p, i) => (
+            <Reveal key={p.id} delay={i * 100}>
+              <Link to={`/products/${p.id}`} className="card card-hover group overflow-hidden">
+                <div className="overflow-hidden">
+                  <Img src={p.cover_image} alt={p.name} className="aspect-[4/3] w-full transition-transform duration-300 group-hover:scale-105" />
+                </div>
+                <div className="p-5">
+                  <h3 className="truncate text-base font-medium text-neutral-900">{p.name}</h3>
+                  {p.brief && <p className="mt-1.5 truncate text-xs text-neutral-500">{p.brief}</p>}
+                  {p.show_price === 1 && p.price_min != null && (
+                    <p className="mt-2.5 text-sm font-semibold text-primary">
+                      ¥{Number(p.price_min).toLocaleString()}
+                      {p.price_max && p.price_max !== p.price_min ? ` - ¥${Number(p.price_max).toLocaleString()}` : " 起"}
+                    </p>
+                  )}
+                </div>
+              </Link>
+            </Reveal>
           ))}
         </div>
       </div>
@@ -258,8 +303,8 @@ function FeaturedProducts({ items }) {
 function NewsPreview({ items }) {
   if (items.length === 0) return null;
   return (
-    <section className="container-content py-16 md:py-24">
-      <div className="flex items-end justify-between">
+    <section className="container-content py-20 md:py-28">
+      <Reveal className="flex items-end justify-between">
         <div>
           <span className="eyebrow">新闻资讯</span>
           <h2 className="section-title mt-4">企业动态</h2>
@@ -267,17 +312,19 @@ function NewsPreview({ items }) {
         <Link to="/news" className="hidden text-sm font-medium text-primary hover:text-primary-deep md:block">
           全部资讯 →
         </Link>
-      </div>
-      <div className="mt-10 grid gap-6 md:grid-cols-3">
-        {items.map((n) => (
-          <Link key={n.id} to={`/news/${n.id}`} className="card card-hover overflow-hidden">
-            <Img src={n.cover_image} alt={n.title} className="aspect-[16/9] w-full" />
-            <div className="p-5">
-              <p className="text-xs text-neutral-400">{n.published_at ? new Date(n.published_at).toLocaleDateString("zh-CN") : ""}</p>
-              <h3 className="mt-2 line-clamp-2 font-medium text-neutral-900">{n.title}</h3>
-              {n.summary && <p className="mt-2 line-clamp-2 text-sm text-neutral-500">{n.summary}</p>}
-            </div>
-          </Link>
+      </Reveal>
+      <div className="mt-12 grid gap-7 md:grid-cols-3 lg:gap-8">
+        {items.map((n, i) => (
+          <Reveal key={n.id} delay={i * 120}>
+            <Link to={`/news/${n.id}`} className="card card-hover overflow-hidden">
+              <Img src={n.cover_image} alt={n.title} className="aspect-[16/9] w-full" />
+              <div className="p-6">
+                <p className="text-xs text-neutral-400">{n.published_at ? new Date(n.published_at).toLocaleDateString("zh-CN") : ""}</p>
+                <h3 className="mt-2.5 line-clamp-2 text-base font-medium text-neutral-900">{n.title}</h3>
+                {n.summary && <p className="mt-2.5 line-clamp-2 text-sm text-neutral-500">{n.summary}</p>}
+              </div>
+            </Link>
+          </Reveal>
         ))}
       </div>
     </section>
