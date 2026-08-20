@@ -134,14 +134,19 @@ def public_categories(db: DbDep):
 def public_products(
     db: DbDep,
     category_id: int | None = Query(default=None),
+    keyword: str | None = Query(default=None, max_length=100),
     page: int = Query(default=1, ge=1),
     page_size: int = Query(default=12, ge=1, le=50),
     sort: str = Query(default="default", max_length=20),
 ):
-    """产品列表：仅上架；category_id 筛选；支持 default/price_asc/price_desc/newest/oldest 排序。"""
+    """产品列表：仅上架；category_id 筛选；keyword 模糊匹配名称/简介；支持 default/price_asc/price_desc/newest/oldest 排序。"""
     q = db.query(Product).filter(Product.is_activate == 1, Product.status == 1)
     if category_id:
         q = q.filter(Product.category_id == category_id)
+    if keyword:
+        kw = keyword.strip()
+        if kw:
+            q = q.filter(Product.name.contains(kw) | Product.brief.contains(kw))
 
     # 价格排序时把无价格记录放最后
     price_null_last = case((Product.price_min.is_(None), 1), else_=0)
