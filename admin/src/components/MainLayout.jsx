@@ -40,7 +40,18 @@ export default function MainLayout() {
 
   const refreshUser = () => setUserState(getUser() || {});
   const menuItems = useMemo(buildMenuItems, []);
-  const selectedKey = location.pathname;
+  // 菜单高亮：精确路径优先；子页面（如 /product/1/edit）按最长路径前缀匹配
+  const selectedKey = useMemo(() => {
+    const path = location.pathname;
+    const flat = (its) => its.flatMap((it) => (it.children ? flat(it.children) : [it]));
+    const keys = flat(MENU_ITEMS).map((it) => it.key).filter((k) => k.startsWith("/"));
+    if (keys.includes(path)) return path;
+    let best = "";
+    for (const k of keys) {
+      if (k !== "/" && path.startsWith(`${k}/`) && k.length > best.length) best = k;
+    }
+    return best || path;
+  }, [location.pathname]);
   const openKeys = useMemo(() => {
     const parent = MENU_ITEMS.find(
       (it) => it.children && it.children.some((c) => c.key === location.pathname)

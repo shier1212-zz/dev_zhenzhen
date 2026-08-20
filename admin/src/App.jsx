@@ -12,6 +12,7 @@ import AboutEdit from "./pages/AboutEdit";
 import ContactConfig from "./pages/ContactConfig";
 import CategoryManage from "./pages/CategoryManage";
 import ProductManage from "./pages/ProductManage";
+import ProductForm from "./pages/ProductForm";
 import MessageManage from "./pages/MessageManage";
 import DepartmentManage from "./pages/DepartmentManage";
 import UserManage from "./pages/UserManage";
@@ -38,6 +39,8 @@ export default function App() {
         <Route path="/contact" element={<ContactConfig />} />
         <Route path="/category" element={<CategoryManage />} />
         <Route path="/product" element={<ProductManage />} />
+        <Route path="/product/new" element={<ProductForm />} />
+        <Route path="/product/:id/edit" element={<ProductForm />} />
         <Route path="/message" element={<MessageManage />} />
         <Route path="/department" element={<DepartmentManage />} />
         <Route path="/user" element={<UserManage />} />

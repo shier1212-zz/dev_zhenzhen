@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   Table,
@@ -7,23 +8,17 @@ import {
   Input,
   Select,
   Tag,
-  Modal,
-  Form,
-  InputNumber,
-  Switch,
   Image,
   Typography,
   Popconfirm,
   message,
 } from "antd";
-import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { productApi, categoryApi } from "../api";
 import { hasPerm } from "../store/auth";
-import ImageUpload from "../components/ImageUpload";
-import MultiImageUpload from "../components/MultiImageUpload";
-import RichTextEditor from "../components/RichTextEditor";
 
 export default function ProductManage() {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -33,10 +28,6 @@ export default function ProductManage() {
   const [status, setStatus] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selected, setSelected] = useState([]);
-
-  const [modalOpen, setModalOpen] = useState(false);
-  const [editing, setEditing] = useState(null);
-  const [form] = Form.useForm();
 
   const canEdit = hasPerm("product", "edit");
 
@@ -68,30 +59,11 @@ export default function ProductManage() {
   }, [page, catId, status]);
 
   const openCreate = () => {
-    setEditing(null);
-    form.resetFields();
-    form.setFieldsValue({ show_price: 1, status: 1, sort: 0, images: [], params: [] });
-    setModalOpen(true);
+    navigate("/product/new");
   };
 
-  const openEdit = async (row) => {
-    const d = await productApi.get(row.id);
-    setEditing(row);
-    form.setFieldsValue(d);
-    setModalOpen(true);
-  };
-
-  const handleOk = async () => {
-    const v = await form.validateFields();
-    if (editing) {
-      await productApi.update(editing.id, v);
-      message.success("修改成功");
-    } else {
-      await productApi.create(v);
-      message.success("新增成功");
-    }
-    setModalOpen(false);
-    load();
+  const openEdit = (row) => {
+    navigate(`/product/${row.id}/edit`);
   };
 
   const toggleStatus = async (row) => {
@@ -225,80 +197,6 @@ export default function ProductManage() {
           pagination={{ current: page, total, pageSize: 10, onChange: setPage }}
         />
       </Card>
-
-      <Modal
-        title={editing ? "编辑产品" : "新增产品"}
-        open={modalOpen}
-        onOk={handleOk}
-        onCancel={() => setModalOpen(false)}
-        okText="保存"
-        cancelText="取消"
-        width={840}
-        destroyOnClose
-      >
-        <Form form={form} layout="vertical">
-          <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
-            <Form.Item name="category_id" label="所属分类" rules={[{ required: true, message: "请选择分类" }]} style={{ flex: 1, minWidth: 200 }}>
-              <Select placeholder="选择分类" options={catOptions} />
-            </Form.Item>
-            <Form.Item name="name" label="产品名称" rules={[{ required: true, message: "请输入名称" }]} style={{ flex: 1, minWidth: 200 }}>
-              <Input placeholder="产品名称" maxLength={100} />
-            </Form.Item>
-          </Space>
-          <Form.Item name="cover_image" label="封面图" rules={[{ required: true, message: "请上传封面" }]}>
-            <ImageUpload width={200} height={120} />
-          </Form.Item>
-          <Form.Item name="images" label="产品图集">
-            <MultiImageUpload maxCount={8} />
-          </Form.Item>
-          <Space size="large" style={{ display: "flex", flexWrap: "wrap" }}>
-            <Form.Item name="price_min" label="价格下限" style={{ flex: 1, minWidth: 160 }}>
-              <InputNumber min={0} style={{ width: "100%" }} placeholder="0 表示面议" />
-            </Form.Item>
-            <Form.Item name="price_max" label="价格上限" style={{ flex: 1, minWidth: 160 }}>
-              <InputNumber min={0} style={{ width: "100%" }} placeholder="可选" />
-            </Form.Item>
-            <Form.Item name="show_price" label="显示价格" valuePropName="checked" style={{ minWidth: 120 }}>
-              <Switch />
-            </Form.Item>
-            <Form.Item name="status" label="上架" valuePropName="checked" style={{ minWidth: 120 }}>
-              <Switch />
-            </Form.Item>
-            <Form.Item name="sort" label="排序" style={{ minWidth: 120 }}>
-              <InputNumber min={0} style={{ width: "100%" }} />
-            </Form.Item>
-          </Space>
-          <Form.Item name="brief" label="简介">
-            <Input.TextArea rows={2} maxLength={200} placeholder="产品一句话简介" />
-          </Form.Item>
-          <Typography.Paragraph type="secondary">规格参数</Typography.Paragraph>
-          <Form.List name="params">
-            {(fields, { add, remove }) => (
-              <>
-                {fields.map(({ key, name, ...rest }) => (
-                  <Space key={key} align="baseline" style={{ display: "flex", marginBottom: 8 }}>
-                    <Form.Item {...rest} name={[name, "key"]} label="参数名" style={{ marginBottom: 0 }}>
-                      <Input placeholder="如：尺寸" style={{ width: 160 }} />
-                    </Form.Item>
-                    <Form.Item {...rest} name={[name, "value"]} label="参数值" style={{ marginBottom: 0 }}>
-                      <Input placeholder="如：120×60cm" style={{ width: 240 }} />
-                    </Form.Item>
-                    <MinusCircleOutlined onClick={() => remove(name)} />
-                  </Space>
-                ))}
-                <Form.Item>
-                  <Button type="dashed" onClick={() => add({ key: "", value: "" })} block icon={<PlusOutlined />}>
-                    添加参数
-                  </Button>
-                </Form.Item>
-              </>
-            )}
-          </Form.List>
-          <Form.Item name="detail_content" label="详情（富文本）">
-            <RichTextEditor height={300} />
-          </Form.Item>
-        </Form>
-      </Modal>
     </div>
   );
 }
